@@ -1,33 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddUser from "./AddUser";
+import AddUser from './AddUser';
+import UserList from './UserList';
+
 
 function App() {
   const [users, setUsers] = useState([]);
 
-  // Hàm load danh sách user từ server
-  const fetchUsers = () => {
-    axios.get("http://localhost:3001/users")
-      .then(res => setUsers(res.data))
-      .catch(err => console.error("Lỗi khi tải user:", err));
-  };
-
-  // Tải lần đầu khi App khởi động
+  // Lấy danh sách user khi khởi động trang
   useEffect(() => {
-    fetchUsers();
+    axios.get("http://localhost:5000/users")
+      .then(res => setUsers(res.data))
+      .catch(err => console.error("Lỗi khi lấy users:", err));
   }, []);
 
-  return (
-    <div>
-      <h1>Danh sách User</h1>
-      <ul>
-        {users.map(user => (
-          <li key={user.id}>{user.name} - {user.email}</li>
-        ))}
-      </ul>
+  // Hàm thêm user mới
+  const handleAddUser = (newUser) => {
+    axios.post("http://localhost:5000/users", newUser)
+      .then(res => setUsers([...users, res.data]))
+      .catch(err => console.error("Lỗi khi thêm user:", err));
+  };
 
-      {/* Truyền fetchUsers xuống AddUser */}
-      <AddUser onUserAdded={fetchUsers} />
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>Danh sách User</h2>
+      <AddUser onAddUser={handleAddUser} />
+      <UserList users={users} />
     </div>
   );
 }
